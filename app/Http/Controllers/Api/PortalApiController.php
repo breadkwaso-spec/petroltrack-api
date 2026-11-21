@@ -236,6 +236,7 @@ class PortalApiController extends Controller
     public function endShift(Request $request)
     {
         $user = $request->user();
+        /** @var \App\Models\Shift|null $shift */
         $shift = Shift::where('user_id', $user->id)->whereNull('ended_at')->latest('id')->first();
         if (!$shift) {
             return response()->json(['message' => 'No active shift found.'], 422);
@@ -271,6 +272,7 @@ class PortalApiController extends Controller
                     ->latest('id')
                     ->firstOrFail();
 
+                /** @var \App\Models\FuelStock $stock */
                 $stock = FuelStock::where('grade_id', $validated['grade_id'])->lockForUpdate()->firstOrFail();
                 $liters = round((float) $validated['liters'], 2);
 
@@ -441,6 +443,7 @@ class PortalApiController extends Controller
 
                 $sale->update(['status' => 'Voided']);
 
+                /** @var \App\Models\FuelStock|null $stock */
                 $stock = FuelStock::where('grade_id', $sale->grade_id)->lockForUpdate()->first();
                 if ($stock) {
                     $stock->update([
@@ -525,6 +528,7 @@ class PortalApiController extends Controller
         ]);
 
         DB::transaction(function () use ($validated, $request) {
+            /** @var \App\Models\FuelStock $stock */
             $stock = FuelStock::where('grade_id', $validated['grade_id'])->lockForUpdate()->firstOrFail();
             $liters = round((float) $validated['liters'], 2);
             $stock->update([
